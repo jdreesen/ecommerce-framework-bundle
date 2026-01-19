@@ -355,7 +355,7 @@ class CommitOrderProcessor implements CommitOrderProcessorInterface, LoggerAware
             /** @var AbstractPaymentInformation $paymentInfo */
             foreach ($paymentInformationCollection as $paymentInfo) {
                 if (
-                    $paymentInfo->getPaymentState() == AbstractOrder::ORDER_STATE_PAYMENT_PENDING &&
+                    $paymentInfo->getPaymentState() === StatusInterface::STATUS_PENDING &&
                     $paymentInfo->getPaymentStart()->getTimestamp() < $timestamp
                 ) {
                     Logger::warn(

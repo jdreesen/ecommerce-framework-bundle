@@ -49,7 +49,7 @@ interface CommitOrderProcessorInterface
      * Commits order payment
      *
      *  - updates order payment information in order object
-     *  - only when payment status == [ORDER_STATE_COMMITTED, ORDER_STATE_PAYMENT_AUTHORIZED] -> order is committed
+//     *  - only when payment status == [PaymentManager\StatusInterface::STATUS_CLEARED, PaymentManager\StatusInterface::STATUS_AUTHORIZED] -> order is committed
      *
      * Use this for committing order when payment is activated
      *

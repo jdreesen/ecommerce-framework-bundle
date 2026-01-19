@@ -331,7 +331,7 @@ class OrderAgent implements OrderAgentInterface
         if ($paymentInformation) {
             /** @var AbstractPaymentInformation $paymentInfo */
             foreach ($paymentInformation as $paymentInfo) {
-                if ($paymentInfo->getPaymentState() == $order::ORDER_STATE_PAYMENT_PENDING || $paymentInfo->getPaymentState() == $order::ORDER_STATE_PAYMENT_INIT) {
+                if ($paymentInfo->getPaymentState() === StatusInterface::STATUS_PENDING || $paymentInfo->getPaymentState() === StatusInterface::STATUS_INIT) {
                     return $paymentInfo;
                 }
             }
@@ -340,6 +340,9 @@ class OrderAgent implements OrderAgentInterface
         return null;
     }
 
+    /**
+     * @param StatusInterface::STATUS_* $paymentState
+     */
     protected function createNewOrderInformation(AbstractOrder $order, string $paymentState): PaymentInfo
     {
         $paymentInformationCollection = $order->getPaymentInfo();
@@ -374,19 +377,19 @@ class OrderAgent implements OrderAgentInterface
         $currentPaymentInformation = $event->getArgument('currentPaymentInformation');
 
         if ($currentPaymentInformation) {
-            if ($currentPaymentInformation->getPaymentState() == AbstractOrder::ORDER_STATE_PAYMENT_PENDING) {
+            if ($currentPaymentInformation->getPaymentState() === StatusInterface::STATUS_PENDING) {
                 throw new PaymentNotAllowedException(
                     'Init payment not allowed because there is currently a payment pending. Cancel payment or recreate order.',
                     $order
                 );
             }
 
-            if ($currentPaymentInformation->getPaymentState() == AbstractOrder::ORDER_STATE_PAYMENT_INIT) {
+            if ($currentPaymentInformation->getPaymentState() === StatusInterface::STATUS_INIT) {
                 $internalPaymentIdForCurrentOrderVersion = $this->generateInternalPaymentId();
 
                 //if order fingerprint changed, abort initialized payment and create new payment information (so set it to null)
                 if ($currentPaymentInformation->getInternalPaymentId() != $internalPaymentIdForCurrentOrderVersion) {
-                    $currentPaymentInformation->setPaymentState($order::ORDER_STATE_ABORTED);
+                    $currentPaymentInformation->setPaymentState(StatusInterface::STATUS_ABORTED);
                     $currentPaymentInformation->setMessage($currentPaymentInformation->getMessage() . ' - aborted be because order changed after payment was initialized.');
                     $order->save(['versionNote' => 'Agent::initPayment - save order to abort existing PaymentInformation.']);
 
@@ -397,7 +400,7 @@ class OrderAgent implements OrderAgentInterface
 
         //if no payment information available, create new one
         if (empty($currentPaymentInformation)) {
-            $currentPaymentInformation = $this->createNewOrderInformation($order, AbstractOrder::ORDER_STATE_PAYMENT_INIT);
+            $currentPaymentInformation = $this->createNewOrderInformation($order, StatusInterface::STATUS_INIT);
             $order->save(['versionNote' => 'Agent::initPayment - save order to add new PaymentInformation.']);
         }
 
@@ -423,7 +426,7 @@ class OrderAgent implements OrderAgentInterface
         $order = $this->getOrder();
 
         //set payment information state to pending
-        $currentPaymentInformation->setPaymentState($order::ORDER_STATE_PAYMENT_PENDING);
+        $currentPaymentInformation->setPaymentState(StatusInterface::STATUS_PENDING);
         $order->save(['versionNote' => 'Agent::startPayment - save order to update PaymentInformation.']);
 
         $this->eventDispatcher->dispatch(new OrderAgentEvent($this, ['currentPaymentInformation' => $currentPaymentInformation]), OrderAgentEvents::POST_START_PAYMENT);
@@ -489,7 +492,7 @@ class OrderAgent implements OrderAgentInterface
         $currentPaymentInformation = $event->getArgument('currentPaymentInformation');
 
         if ($currentPaymentInformation) {
-            $currentPaymentInformation->setPaymentState($order::ORDER_STATE_CANCELLED);
+            $currentPaymentInformation->setPaymentState(StatusInterface::STATUS_CANCELLED);
             $currentPaymentInformation->setMessage("Payment cancelled by 'cancelStartedOrderPayment'");
             $order->setOrderState(null);
             $order->save(['versionNote' => 'OrderAgent::cancelStartedOrderPayment - empty order state.']);
@@ -545,7 +548,7 @@ class OrderAgent implements OrderAgentInterface
         //check if current payment info already aborted - if so create new one to log information and throw exception
         //because something wired is going on
         $abortedByResponseReceived = false;
-        if ($currentPaymentInformation && $currentPaymentInformation->getPaymentState() == AbstractOrder::ORDER_STATE_ABORTED) {
+        if ($currentPaymentInformation && $currentPaymentInformation->getPaymentState() === StatusInterface::STATUS_ABORTED) {
             $abortedByResponseReceived = true;
 
             //set current payment info to null to create a new one
@@ -586,7 +589,7 @@ class OrderAgent implements OrderAgentInterface
         if ($abortedByResponseReceived) {
             // if we got an response even if payment state was already aborted throw exception
             $paymentStateBackup = $currentPaymentInformation->getPaymentState();
-            $currentPaymentInformation->setPaymentState(AbstractOrder::ORDER_PAYMENT_STATE_ABORTED_BUT_RESPONSE);
+            $currentPaymentInformation->setPaymentState(StatusInterface::STATUS_ABORTED_BUT_RESPONSE);
             $currentPaymentInformation->setMessage(
                 $currentPaymentInformation->getMessage() .
                 ' -> got response although payment state was already aborted, new payment state was "' .

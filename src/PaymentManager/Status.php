@@ -19,37 +19,33 @@ namespace Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager;
 class Status implements StatusInterface
 {
     /**
-     * internal pimcore order status - see also constants \Pimcore\Bundle\EcommerceFrameworkBundle\Model\AbstractOrder::ORDER_STATE_*
-     *
+     * internal pimcore order status
      */
     protected string $status;
 
     /**
      * pimcore internal payment id, necessary to identify payment information in order object
-     *
      */
     protected string $internalPaymentId;
 
     /**
      * payment reference from payment provider
-     *
      */
     protected string $paymentReference;
 
     /**
      * payment message provided from payment provider - e.g. error message on error
-     *
      */
     protected string $message;
 
     /**
      * additional payment data
-     *
      */
     protected array $data = [];
 
     /**
-     * @param array  $data  extended data
+     * @param StatusInterface::STATUS_* $status
+     * @param array                     $data   extended data
      */
     public function __construct(string $internalPaymentId, string $paymentReference, string $message, string $status, array $data = [])
     {

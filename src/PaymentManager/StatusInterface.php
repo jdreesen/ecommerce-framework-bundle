@@ -16,46 +16,46 @@ declare(strict_types=1);
 
 namespace Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager;
 
-/**
- * Interface StatusInterface
- */
 interface StatusInterface
 {
+    const STATUS_INIT = 'paymentInit';
+
     const STATUS_PENDING = 'paymentPending';
 
     const STATUS_AUTHORIZED = 'paymentAuthorized';
 
+    const STATUS_CLEARED = 'committed';
+
     const STATUS_CANCELLED = 'cancelled';
 
-    const STATUS_CLEARED = 'committed';
+    const STATUS_ABORTED = 'aborted';
+
+    const STATUS_ABORTED_BUT_RESPONSE = 'abortedButResponseReceived';
 
     /**
      * payment reference from payment provider
-     *
      */
     public function getPaymentReference(): string;
 
     /**
      * pimcore internal payment id, necessary to identify payment information in order object
-     *
      */
     public function getInternalPaymentId(): string;
 
     /**
      * payment message provided from payment provider - e.g. error message on error
-     *
      */
     public function getMessage(): string;
 
     /**
-     * internal pimcore order status - see also constants \Pimcore\Bundle\EcommerceFrameworkBundle\Model\AbstractOrder::ORDER_STATE_*
+     * internal pimcore order status
      *
+     * @return self::STATUS_*
      */
     public function getStatus(): string;
 
     /**
      * additional payment data
-     *
      */
     public function getData(): array;
 }

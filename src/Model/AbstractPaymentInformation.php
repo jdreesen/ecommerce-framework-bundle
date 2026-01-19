@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Pimcore\Bundle\EcommerceFrameworkBundle\Model;
 
 use Carbon\Carbon;
+use Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\StatusInterface;
 
 /**
  * Abstract base class for payment information field collection
@@ -35,8 +36,14 @@ abstract class AbstractPaymentInformation extends \Pimcore\Model\DataObject\Fiel
 
     abstract public function setPaymentReference(?string $paymentReference): static;
 
+    /**
+     * @return StatusInterface::STATUS_*|null
+     */
     abstract public function getPaymentState(): ?string;
 
+    /**
+     * @param StatusInterface::STATUS_*|null $paymentState
+     */
     abstract public function setPaymentState(?string $paymentState): static;
 
     abstract public function getMessage(): ?string;

@@ -32,13 +32,7 @@ abstract class AbstractOrder extends Concrete
 
     const ORDER_STATE_PAYMENT_PENDING = 'paymentPending';
 
-    const ORDER_STATE_PAYMENT_INIT = 'paymentInit';
-
-    const ORDER_STATE_PAYMENT_AUTHORIZED = 'paymentAuthorized';
-
     const ORDER_STATE_ABORTED = 'aborted';
-
-    const ORDER_PAYMENT_STATE_ABORTED_BUT_RESPONSE = 'abortedButResponseReceived';
 
     abstract public function getOrdernumber(): ?string;
 

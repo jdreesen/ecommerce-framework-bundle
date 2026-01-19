@@ -391,7 +391,7 @@ class OrderManager implements OrderManagerInterface
             $paymentInfo = $orderAgent->getCurrentPendingPaymentInfo();
 
             if ($paymentInfo) {
-                if ($paymentInfo->getPaymentState() == AbstractOrder::ORDER_STATE_PAYMENT_PENDING) {
+                if ($paymentInfo->getPaymentState() === StatusInterface::STATUS_PENDING) {
                     return true;
                 }
             }
